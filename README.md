@@ -1,81 +1,83 @@
 # tv-remote
 Own ADB interface for home TV
 
+[🇷🇺 Читать на русском языке](README_RU.md)
+
 # 📺 Tv Remote: Vibecoding vs. Crappy Software
 
 <img src="https://raw.githubusercontent.com/martimaxi/tv-remote/main/ScreenShot.png" width="250" align="right" style="margin-left: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
 
-### Небольшой проект по доработке напильником одного конкретного телевизора 
-(и спасению нервных клеток его владельца) от странных решений маркетологов.
+### A small project to "fine-tune" a specific TV
+(and save the owner's nerve cells) from the strange decisions of marketing departments.
 
-Это не просто пульт, а аккуратный пример **вайбкодинга**: когда вместо недель проектирования за один вечер собирается решение, которое просто работает — и делает это не хуже коммерческих альтернатив.
-
----
-
-### 💡 Почему это появилось?
-
-Большая кнопка на третьем (!) по счёту пульте не выдержала нетерпеливых детских ручек и начала тихо умирать. Снова искать совместимый пульт на маркетплейсах? Ох...
-
-Идём в App Store, ищем *TV Remote* — и видим десятки приложений с платной подпиской буквально за возможность нажать кнопку **OK** по Wi-Fi. При этом приложение весит сотни мегабайт, перегружено рекламой и иногда тормозит так, будто сигнал идёт через Плутон.
-
-Платить за отправку ADB-команд — странная идея. Поэтому появилась простая альтернатива: 
-**0 рублей, минимум кода, полный контроль и возможность сделать всё под себя.**
+This is not just a remote control, but a neat example of **vibecoding**: when instead of weeks of planning, a solution is put together in one evening that simply works — and does it no worse than commercial alternatives.
 
 ---
 
-### 🚀 Идея и технологии
+### 💡 Why was this created?
 
-Лёгкий Docker-контейнер, который превращает телефон в быстрый веб-пульт.
+The big button on the third (!) remote in a row couldn't withstand impatient children's hands and began to die quietly. Look for a compatible remote on marketplaces again? Ugh...
 
-- **Backend:** Python (Flask) + ADB. Команды отправляются мгновенно через `subprocess.Popen` без ожидания ответа ТВ.
-- **Frontend:** чистый HTML5/JS + Bootstrap 5 — без тяжёлых фреймворков.
-- **Vibe:** FontAwesome 6, тёмная тема и ничего лишнего.
-- **Stats:** реальное отображение загрузки RAM/Swap прямо на кнопках управления.
+We go to the App Store, search for *TV Remote* — and see dozens of apps with a paid subscription (around $5-10/mo) just for the ability to press the **OK** button over Wi-Fi. At the same time, the app weighs hundreds of megabytes, is overloaded with ads, and sometimes lags as if the signal is going through Pluto.
 
----
-
-#### 🛠 Подготовка телевизора (важно)
-
-Чтобы всё заработало:
-
-1. Зайдите в **Настройки → Об устройстве**.
-2. Найдите **Номер сборки** и нажимайте на него, пока не появится сообщение «Вы стали разработчиком».
-3. В меню **Для разработчиков** включите:
-    - **USB Debugging** (Отладка по USB)
-    - **Network Debugging** (если есть пункт «Отладка по сети»)
-4. Узнайте IP телевизора в настройках сети и пропишите его в `docker-compose.yaml` (переменная `TV_IP`).
-
-> **Note:** Если в меню нет пункта "Отладка по сети", попробуйте один раз подключить ТВ по USB и выполнить `adb tcpip 5555`.
+Paying for sending ADB commands is a weird idea. So a simple alternative appeared:
+**$0, minimum code, full control, and the ability to customize everything for yourself.**
 
 ---
 
-### 📦 Быстрый старт
+### 🚀 Idea and Tech Stack
+
+A lightweight Docker container that turns your phone into a fast web remote.
+
+- **Backend:** Python (Flask) + ADB. Commands are sent instantly via `subprocess.Popen` without waiting for the TV's response.
+- **Frontend:** Pure HTML5/JS + Bootstrap 5 — no heavy frameworks.
+- **Vibe:** FontAwesome 6, dark theme, and nothing extra.
+- **Stats:** Real-time display of RAM/Swap load right on the control buttons.
+
+---
+
+#### 🛠 TV Preparation (Important)
+
+To make everything work:
+
+1. Go to **Settings → About Device**.
+2. Find **Build Number** and tap it until you see the message "You are now a developer."
+3. In the **Developer Options** menu, enable:
+    - **USB Debugging**
+    - **Network Debugging** (if available)
+4. Find out the TV's IP in the network settings and specify it in `docker-compose.yaml` (variable `TV_IP`).
+
+> **Note:** If there is no "Network Debugging" item in the menu, try connecting the TV via USB once and running `adb tcpip 5555`.
+
+---
+
+### 📦 Quick Start
 
 `docker compose up -d --build`
 
-После запуска откройте страницу `http://<ваш-ip>:5000` на смартфоне и добавьте её на экран Home (**Add to Home Screen**), чтобы пульт работал как полноценное PWA без рамок браузера.
+After launching, open the page `http://<your-ip>:5000` on your smartphone and add it to the Home Screen (**Add to Home Screen**) so the remote works as a full-fledged PWA without browser frames.
 
 ---
 
-### 💡 Лайфхак
+### 💡 Lifehack
 
-Памяти в бюджетных телевизорах всегда мало. Стоковый лаунчер часто грузится долго и тянет за собой ненужные сервисы. 
+Memory in budget TVs is always scarce. The stock launcher often takes a long time to load and pulls unnecessary services with it.
 
-Раз уж доступ к ADB у вас теперь есть — воспользуйтесь этим. Можно отключить лишний софт (например, `adb shell pm disable-user com.google.android.youtube.tv`), чтобы освободить ресурсы для действительно важных вещей.
-
----
-
-### 👥 Авторы и благодарности
-
-`@martimaxi` — идея, тестирование «в полях», архитектура макросов и отладка на реальном железе.
-
-`Gemini (Google AI)` — основной объём кода, реализация «быстрого» ADB, фронтенд и бесконечное терпение к правкам интерфейса в духе «а давай сделаем иконки еще крупнее».
+Since you now have ADB access — use it. You can disable unnecessary software (e.g., `adb shell pm disable-user com.google.android.youtube.tv`) to free up resources for things that actually matter.
 
 ---
 
-**Есть идеи по доработке?** Не нравятся кнопки? Нужны другие? Или хочется прикрутить голосовое управление? 
+### 👥 Authors & Credits
 
-Возьмите этот проект, позовите на помощь нейронку, сделайте как хотите и что хотите. И обязательно поделитесь результатом с другими. 
+`@martimaxi` — Idea, field testing, macro architecture, and debugging on real hardware.
+
+`Gemini (Google AI)` — Bulk of the code, implementation of "fast" ADB, frontend, and infinite patience for UI tweaks like "let's make the icons even larger."
+
+---
+
+**Have ideas for improvement?** Don't like the buttons? Need others? Or want to add voice control?
+
+Take this project, call an AI for help, make it how you want and what you want. And be sure to share the result with others.
 
 License: MIT
 
