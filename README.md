@@ -3,7 +3,7 @@ Own ADB interface for home TV
 
 # 📺 Tv Remote: Vibecoding vs Crappy Software
 
-<img src="https://raw.githubusercontent.com/martimaxi/tv-remote/main/ScreenShot.png" width="200" align="right" style="margin-left: 20px;">
+<img src="https://raw.githubusercontent.com/martimaxi/tv-remote/main/ScreenShot.png" width="375" align="right" style="margin-left: 20px;">
 
 ### Проект по спасению одного конкретного телевизора 
 (и нервных клеток его владельца)  от тирании встроенного софта. Это не просто пульт, это манифест вайбкодинга: 
