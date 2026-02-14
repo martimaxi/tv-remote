@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { background: #000; color: #eee; font-family: sans-serif; touch-action: manipulation; user-select: none; }
+        .remote-btn {
+            background: #222; border: 1px solid #444; color: #fff; border-radius: 12px;
+            padding: 12px; width: 100%; box-shadow: 0 3px 0 #111; font-size: 16px;
+            touch-action: manipulation; transition: 0.1s;
+        }
+        .remote-btn:active { transform: translateY(2px); box-shadow: none; background: #333; }
+        .btn-ok { background: #0056b3;  font-weight: bold; }
+        .btn-exit { background: #444; color: #ffca28; border-color: #ffca28; }
+
+        .d-pad { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 15px 0; }
+
+        .app-btn {
+            border: none; padding: 10px 2px; font-size: 12px; font-weight: bold;
+            border-radius: 10px; color: white; text-transform: uppercase;
+            width: 100%; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+        }
+        .app-emby { background: #52b54b; }
+        .app-kp { background: #ff6600; }
+        .app-ivi { background: #ec106d; }
+        .app-st { background: red; border: 1px solid #555; }
+
+        .progress { background-color: #222; height: 6px; border-radius: 3px; }
+        .stat-label { font-size: 9px; color: #777; text-transform: uppercase; display: block; margin-bottom: 2px; }
+
+        .remote-btn i { pointer-events: none; }
+    </style>
+    <title>TV Remote</title>
+</head>
+<body>
+<div class="container p-3" style="max-width: 350px;">
+
+    <div class="row g-2 mb-4">
+        <div class="col-4">
+            <button class="remote-btn" style="color:#ff5555" onclick="send('shell input keyevent 26')">
+                <i class="fa-solid fa-power-off fa-2xl"></i>
+            </button>
+        </div>
+        <div class="col-4">
+            <button class="remote-btn" onclick="send('shell input keyevent 3')">
+                <i class="fa-solid fa-house fa-2xl"></i>
+            </button>
+        </div>
+        <div class="col-4">
+            <button class="remote-btn btn-exit" onclick="launch('me.efesser.flauncher')">
+                <i class="fa-solid fa-arrow-right-from-bracket fa-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="d-pad text-center mb-4">
+        <div></div>
+        <button class="remote-btn" onclick="send('shell input keyevent 19')"><i class="fa-solid fa-chevron-up fa-2xl"></i></button>
+        <div></div>
+
+        <button class="remote-btn" onclick="send('shell input keyevent 21')"><i class="fa-solid fa-chevron-left fa-2xl"></i></button>
+        <button class="remote-btn btn-ok" onclick="send('shell input keyevent 23')">OK</button>
+        <button class="remote-btn" onclick="send('shell input keyevent 22')"><i class="fa-solid fa-chevron-right fa-2xl"></i></button>
+
+        <div></div>
+        <button class="remote-btn" onclick="send('shell input keyevent 20')"><i class="fa-solid fa-chevron-down fa-2xl"></i></button>
+        <div></div>
+    </div>
+
+    <div class="row g-2 mb-4">
+        <div class="col-6">
+            <button class="remote-btn" onclick="send('shell input keyevent 4')">
+                <i class="fa-solid fa-rotate-left fa-xl me-3"></i>BACK
+            </button>
+        </div>
+        <div class="col-6">
+            <button class="remote-btn" onclick="send('shell input keyevent 82')">
+                <i class="fa-solid fa-bars fa-xl me-3"></i> MENU
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-4 text-center">
+        <div class="col-3"><button class="app-btn app-emby" onclick="launch('tv.emby.embyatv')">Emby</button></div>
+        <div class="col-3"><button class="app-btn app-kp" onclick="launch('ru.kinopoisk.tv')">KP</button></div>
+        <div class="col-3"><button class="app-btn app-ivi" onclick="launch('ru.ivi.client')">IVI</button></div>
+        <div class="col-3"><button class="app-btn app-st" onclick="launch('org.smarttube.stable')">STube</button></div>
+    </div>
+
+    <div class="input-group mb-5">
+        <input id="t" type="text" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" placeholder="Type text..">
+        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="sendText()">
+            <i class="fa-solid fa-check fa-xl"></i>
+        </button>
+    </div>
+
+    <div class="row g-3 p-2  mx-0">
+        <div class="col-4">
+            <span class="stat-label">RAM: <span id="rp">0</span>%</span>
+            <div class="progress">
+                <div id="rb" class="progress-bar bg-info" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <span class="stat-label">SWAP: <span id="sp">0</span>%</span>
+            <div class="progress">
+                <div id="sb" class="progress-bar bg-warning" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const send = cmd => fetch(`/adb?cmd=${encodeURIComponent(cmd)}`);
+    const launch = pkg => {
+        // Сначала шлем серию HOME, чтобы закрыть штатные окна (эфир, меню настроек)
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => send('shell input keyevent 3'), i * 200);
+        }
+        // Через полсекунды, когда система "очухалась", открываем нужный пакет
+        setTimeout(() => send(`shell monkey -p ${pkg} 1`), 600);
+    };
+    const sendText = () => {
+        const i = document.getElementById('t');
+        if (i.value) {
+            // Заменяем пробелы на %s для корректной передачи через adb shell
+            const text = i.value.replace(/ /g, '%s');
+            send(`shell input text "${text}"`);
+            i.value = '';
+        }
+    };
+
+    async function update() {
+        try {
+            const r = await fetch('/stats');
+            const d = await r.json();
+            document.getElementById('rb').style.width = d.ram_p + '%';
+            document.getElementById('rp').innerText = d.ram_p;
+            document.getElementById('sb').style.width = d.swap_p + '%';
+            document.getElementById('sp').innerText = d.swap_p;
+        } catch (e) {}
+    }
+
+    setInterval(update, 5000);
+    update();
+</script>
+</body>
+</html>

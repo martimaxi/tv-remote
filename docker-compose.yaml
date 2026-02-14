@@ -1,0 +1,11 @@
+services:
+  supra-remote:
+    build: .
+    container_name: supra_remote
+    network_mode: host
+    restart: always
+    environment:
+      - TV_IP=192.168.0.140:5555
+      - TZ=Europe/Moscow
+    volumes:
+      - .:/app
